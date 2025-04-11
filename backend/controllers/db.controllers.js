@@ -201,7 +201,39 @@ export const applyDiscount = async (req, res) => {
 
 export const allDiscounts = async (req, res) => {
   try {
+    const check = await tableOperations.helper(); // checks if Allahindlus exists
+
+    if (check[0].Count === 0) {
+      return res.status(200).json([
+        {
+          Teade:
+            "Allahindluse veerg puudub. Lisa see enne, kui proovid allahindlusi vaadata.",
+        },
+      ]);
+    }
+
     const result = await tableOperations.allDiscounts();
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Error sorteerimisel:", error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const oldDiscounts = async (req, res) => {
+  try {
+    const check = await tableOperations.helper(); // checks if Allahindlus exists
+
+    if (check[0].Count === 0) {
+      return res.status(200).json([
+        {
+          Teade:
+            "Allahindluse veerg puudub. Lisa see enne, kui proovid allahindlusi vaadata.",
+        },
+      ]);
+    }
+
+    const result = await tableOperations.oldDiscounts();
     return res.status(200).json(result);
   } catch (error) {
     console.error("Error sorteerimisel:", error.message);

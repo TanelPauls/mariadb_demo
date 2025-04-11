@@ -287,6 +287,25 @@ class tableOperations {
     }
   }
 
+  static async oldDiscounts() {
+    const query = `
+          SELECT 
+            Nimetus AS Toode,
+            Hind AS Vana_Hind,
+            Allahindlus,
+            ROUND(Hind * (1 - Allahindlus / 100), 2) AS Uus_Hind
+          FROM 
+            TOOTED;
+        `;
+    try {
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error("Error tabeli koostamisel: ", error.stack);
+      throw error;
+    }
+  }
+
   static async cheapest() {
     const query = `
           SELECT * FROM (

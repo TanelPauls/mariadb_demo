@@ -78,13 +78,13 @@ export default function ProductViewer() {
     const [baseEndpoint, tag] = selectedEndpoint.split("#");
 
     if (baseEndpoint === "/search") {
-      setSearchName(tag === "seemne" ? "seemne" : "leib");
-      setSearchPrice("0");
-      fetchData(`/search?name=${tag === "seemne" ? "seemne" : "leib"}&price=0`);
+      setSearchName("");
+      setSearchPrice("");
+      fetchData(`/search?name=&price=0`);
     } else if (selectedEndpoint.startsWith("/edit")) {
       fetchData("/edit");
     } else if (selectedEndpoint === "/applyDiscount") {
-      fetchData(`/allDiscounts`);
+      fetchData(`/oldDiscounts`);
     } else {
       fetchData(selectedEndpoint.replace("/:id", ""));
     }
@@ -307,7 +307,6 @@ export default function ProductViewer() {
         onChange={(e) => setSelectedEndpoint(e.target.value)}
         style={{ padding: "8px", marginBottom: "10px", minWidth: "250px" }}
       >
-        <option value="">-- Vali päring --</option>
         {endpoints.map((ep) => (
           <option key={ep.value} value={ep.value}>
             {ep.label}
@@ -317,20 +316,30 @@ export default function ProductViewer() {
 
       {selectedEndpoint.startsWith("/search") && (
         <div style={{ marginTop: 10, marginBottom: 20 }}>
-          <input
-            type="text"
-            placeholder="Nimetus sisaldab..."
-            value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-            style={{ marginRight: 10, padding: "6px" }}
-          />
-          <input
-            type="number"
-            placeholder="Hind üle..."
-            value={searchPrice}
-            onChange={(e) => setSearchPrice(e.target.value)}
-            style={{ marginRight: 10, padding: "6px" }}
-          />
+          <div style={{ marginBottom: 8 }}>
+            <label style={{ display: "block", fontWeight: "bold" }}>
+              Nimetus sisaldab...
+            </label>
+            <input
+              type="text"
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+              style={{ marginRight: 10, padding: "6px", width: "250px" }}
+            />
+          </div>
+
+          <div style={{ marginBottom: 8 }}>
+            <label style={{ display: "block", fontWeight: "bold" }}>
+              Hind üle...
+            </label>
+            <input
+              type="number"
+              value={searchPrice}
+              onChange={(e) => setSearchPrice(e.target.value)}
+              style={{ marginRight: 10, padding: "6px", width: "250px" }}
+            />
+          </div>
+
           <button
             onClick={() =>
               fetchData(`/search?name=${searchName}&price=${searchPrice || 0}`)
@@ -341,22 +350,33 @@ export default function ProductViewer() {
           </button>
         </div>
       )}
+
       {selectedEndpoint === "/applyDiscount" && (
         <div style={{ marginTop: 10, marginBottom: 20 }}>
-          <input
-            type="text"
-            placeholder="Tootenimetus sisaldab..."
-            value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-            style={{ marginRight: 10, padding: "6px" }}
-          />
-          <input
-            type="number"
-            placeholder="Allahindlus (%)"
-            value={searchPrice}
-            onChange={(e) => setSearchPrice(e.target.value)}
-            style={{ marginRight: 10, padding: "6px" }}
-          />
+          <div style={{ marginBottom: 8 }}>
+            <label style={{ display: "block", fontWeight: "bold" }}>
+              Tootenimetus sisaldab...
+            </label>
+            <input
+              type="text"
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+              style={{ marginRight: 10, padding: "6px", width: "250px" }}
+            />
+          </div>
+
+          <div style={{ marginBottom: 8 }}>
+            <label style={{ display: "block", fontWeight: "bold" }}>
+              Allahindlus (%)
+            </label>
+            <input
+              type="number"
+              value={searchPrice}
+              onChange={(e) => setSearchPrice(e.target.value)}
+              style={{ marginRight: 10, padding: "6px", width: "250px" }}
+            />
+          </div>
+
           <button
             onClick={async () => {
               try {
@@ -371,8 +391,8 @@ export default function ProductViewer() {
                   }),
                 });
                 const json = await res.json();
-                alert(json.message); // or style it differently
-                fetchData("/allDiscounts"); // reload edited view or discount list
+                alert(json.message);
+                fetchData("/oldDiscounts");
               } catch (err) {
                 console.error("Apply discount failed:", err);
                 alert("Midagi läks valesti allahindluse lisamisel.");

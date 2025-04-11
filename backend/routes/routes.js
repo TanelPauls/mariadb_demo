@@ -17,6 +17,7 @@ import {
   addDiscount,
   applyDiscount,
   allDiscounts,
+  oldDiscounts,
   cheapest,
   mostexpensive,
 } from "../controllers/db.controllers.js";
@@ -39,6 +40,7 @@ router.get("/breads", breads);
 router.get("/addDiscount", addDiscount);
 router.patch("/applyDiscount", applyDiscount);
 router.get("/allDiscounts", allDiscounts);
+router.get("/oldDiscounts", oldDiscounts);
 router.get("/cheapest", cheapest);
 router.get("/mostexpensive", mostexpensive);
 
