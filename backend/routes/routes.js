@@ -9,6 +9,11 @@ import {
   priceKGSortDown,
   search,
   updateProduct,
+  namePriceVariety,
+  namePriceVarietyCompany,
+  breads,
+  addDiscount,
+  applyDiscount,
 } from "../controllers/db.controllers.js";
 
 const router = express.Router();
@@ -21,5 +26,10 @@ router.get("/pricePerKGsortUp", priceKGSortUp);
 router.get("/pricePerKGsortDown", priceKGSortDown);
 router.get("/search", search);
 router.patch("/edit/:id", updateProduct);
+router.get("/namePriceVariety", namePriceVariety);
+router.get("/namePriceVarietyCompany", namePriceVarietyCompany);
+router.get("/breads", breads);
+router.get("/addDiscount", addDiscount);
+router.patch("/applyDiscount", applyDiscount);
 
 export default router;

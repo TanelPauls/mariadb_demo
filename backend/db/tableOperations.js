@@ -128,11 +128,7 @@ class tableOperations {
       throw new Error("No valid fields to update.");
     }
 
-    const query = `
-  UPDATE TOOTED
-  SET ${updates.join(", ")}
-  WHERE id = ?;
-`;
+    const query = `UPDATE TOOTED SET ${updates.join(", ")} WHERE id = ?;`;
 
     values.push(id);
 
@@ -141,6 +137,116 @@ class tableOperations {
       return result;
     } catch (error) {
       console.error("Error updating product:", error.message);
+      throw error;
+    }
+  }
+
+  static async namePriceVariety() {
+    const query = `
+          SELECT TOOTED.Nimetus AS Toode, TOOTED.Hind, LIIK.Nimetus AS Liik
+          FROM 
+            TOOTED
+          JOIN 
+            LIIK ON TOOTED.Liik = LIIK.Liigi_id;
+        `;
+    try {
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error("Error tabeli koostamisel: ", error.stack);
+      throw error;
+    }
+  }
+
+  static async namePriceVarietyCompany() {
+    const query = `
+          SELECT TOOTED.Nimetus AS Toode, TOOTED.Hind, LIIK.Nimetus AS Liik, TOOTJA.Tootja AS Tootja
+          FROM 
+            TOOTED
+          JOIN 
+            LIIK ON TOOTED.Liik = LIIK.Liigi_id
+          JOIN 
+            TOOTJA ON TOOTED.Tootja_id = TOOTJA.Tootja_id;
+        `;
+    try {
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error("Error tabeli koostamisel: ", error.stack);
+      throw error;
+    }
+  }
+
+  static async breads() {
+    const query = `
+          SELECT 
+            LIIK.Nimetus AS Liik,
+            COUNT(*) AS Kogus
+          FROM 
+            TOOTED
+          JOIN 
+            LIIK ON TOOTED.Liik = LIIK.Liigi_id
+          WHERE 
+            LIIK.Nimetus IN ('sai', 'leib')
+          GROUP BY 
+            LIIK.Nimetus;
+        `;
+    try {
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error("Error tabeli koostamisel: ", error.stack);
+      throw error;
+    }
+  }
+
+  static async helper() {
+    const query = `
+          SELECT COUNT(*) AS Count
+          FROM information_schema.columns 
+          WHERE LOWER(table_name) = 'tooted' 
+          AND column_name = 'Allahindlus';
+        `;
+    try {
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error(
+        "Error kontrollis kas allahindluse väli on olemas: ",
+        error.stack
+      );
+      throw error;
+    }
+  }
+  static async addDiscount() {
+    const query = `
+          ALTER TABLE TOOTED
+          ADD COLUMN Allahindlus INT DEFAULT 0;
+        `;
+    try {
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error("Error allahindluse lisamisel: ", error.stack);
+      throw error;
+    }
+  }
+
+  static async applyDiscount(searchTerm, discountValue) {
+    const query = `
+      UPDATE TOOTED
+      SET Allahindlus = ?
+      WHERE Nimetus LIKE ?;
+    `;
+
+    try {
+      const [result] = await db.query(query, [
+        discountValue,
+        `%${searchTerm}%`,
+      ]);
+      return result;
+    } catch (error) {
+      console.error("Error allahindluse lisamisel:", error.message);
       throw error;
     }
   }

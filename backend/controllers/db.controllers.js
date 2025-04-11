@@ -117,3 +117,73 @@ export const updateProduct = async (req, res) => {
     return res.status(500).json({ message: "Internal server error." });
   }
 };
+
+export const namePriceVariety = async (req, res) => {
+  try {
+    const result = await tableOperations.namePriceVariety();
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Error sorteerimisel:", error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const namePriceVarietyCompany = async (req, res) => {
+  try {
+    const result = await tableOperations.namePriceVarietyCompany();
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Error sorteerimisel:", error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const breads = async (req, res) => {
+  try {
+    const result = await tableOperations.breads();
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Error sorteerimisel:", error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const addDiscount = async (req, res) => {
+  try {
+    const result = await tableOperations.helper();
+    if (result[0].Count === 0) {
+      await tableOperations.addDiscount();
+      return res
+        .status(200)
+        .json({ message: "Allahindluse väli edukalt lisatud." });
+    } else {
+      return res
+        .status(200)
+        .json({ message: "Allahindluse väli on juba olemas." });
+    }
+  } catch (error) {
+    console.error("Error sorteerimisel:", error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const applyDiscount = async (req, res) => {
+  const { name, value } = req.body;
+
+  if (!name || typeof value !== "number") {
+    return res
+      .status(400)
+      .json({ message: "Sisesta otsisõna ja allahindluse väärtus." });
+  }
+
+  try {
+    const result = await tableOperations.applyDiscount(name, value);
+    res.status(200).json({
+      message: `Allahindlus ${value}% rakendatud toodetele, mille nimetus sisaldab "${name}".`,
+      affectedRows: result.affectedRows,
+    });
+  } catch (error) {
+    console.error("Error allahindluse määramisel:", error.message);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
