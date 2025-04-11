@@ -34,6 +34,20 @@ class tableOperations {
       throw error;
     }
   }
+
+  static async unSorted() {
+    const query = `
+          SELECT Nimetus, Kaal, Hind FROM TOOTED;
+        `;
+    try {
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error("Error tabeli sorteerimisel: ", error.stack);
+      throw error;
+    }
+  }
+
   static async sortUp() {
     const query = `
           SELECT Nimetus, Kaal, Hind FROM TOOTED ORDER BY Hind ASC;

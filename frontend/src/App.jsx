@@ -1,8 +1,10 @@
+import ProductViewer from "./assets/ProductViewer";
+
 function App() {
   return (
-    <>
-      <h1>E-õpe 4: Kokkuvõttev ülesanne (MariaDB)</h1>
-    </>
+    <div>
+      <ProductViewer />
+    </div>
   );
 }
 

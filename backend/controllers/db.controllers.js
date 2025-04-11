@@ -22,6 +22,17 @@ export const resetDB = async (req, res) => {
     return res.status(500).json({ message: "Internal server error." });
   }
 };
+
+export const unSorted = async (req, res) => {
+  try {
+    const sortedProducts = await tableOperations.unSorted();
+    return res.status(200).json(sortedProducts);
+  } catch (error) {
+    console.error("Error sorteerimisel:", error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
 export const sortUp = async (req, res) => {
   try {
     const sortedProducts = await tableOperations.sortUp();

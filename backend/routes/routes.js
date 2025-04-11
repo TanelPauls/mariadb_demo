@@ -2,6 +2,7 @@ import express from "express";
 
 import {
   resetDB,
+  unSorted,
   sortUp,
   sortDown,
   priceKG,
@@ -22,6 +23,7 @@ import {
 const router = express.Router();
 
 router.get("/reset", resetDB);
+router.get("/unSorted", unSorted);
 router.get("/sortUp", sortUp);
 router.get("/sortDown", sortDown);
 router.get("/pricePerKG", priceKG);
