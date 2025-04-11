@@ -15,7 +15,7 @@ const endpoints = [
   {
     label:
       "3. Kuvada kõik tooted, mille nimetus sisaldab sõna leib ja mis maksab üle 2 euro. Lisaks toote nimetusele väljasta ka kaal ja hind.",
-    value: "/search",
+    value: "/search#leib",
   },
   {
     label:
@@ -37,7 +37,7 @@ const endpoints = [
   },
   {
     label: "8. Kuva toote nimetused, mis sisaldavad sõna “seemne”.",
-    value: "/search",
+    value: "/search#seemne",
   },
   {
     label:
@@ -65,7 +65,7 @@ const endpoints = [
 ];
 
 export default function ProductViewer() {
-  const [selectedEndpoint, setSelectedEndpoint] = useState("/search");
+  const [selectedEndpoint, setSelectedEndpoint] = useState("/unsorted");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -75,10 +75,12 @@ export default function ProductViewer() {
   const [editedRow, setEditedRow] = useState({});
 
   useEffect(() => {
-    if (selectedEndpoint === "/search") {
-      setSearchName("");
-      setSearchPrice("");
-      fetchData(`/search?name=&price=0`);
+    const [baseEndpoint, tag] = selectedEndpoint.split("#");
+
+    if (baseEndpoint === "/search") {
+      setSearchName(tag === "seemne" ? "seemne" : "leib");
+      setSearchPrice("0");
+      fetchData(`/search?name=${tag === "seemne" ? "seemne" : "leib"}&price=0`);
     } else if (selectedEndpoint.startsWith("/edit")) {
       fetchData("/edit");
     } else if (selectedEndpoint === "/applyDiscount") {
@@ -142,7 +144,6 @@ export default function ProductViewer() {
       newEndpoint = "/unsorted";
     }
 
-    setSelectedEndpoint(newEndpoint);
     fetchData(newEndpoint);
   };
 
@@ -260,7 +261,47 @@ export default function ProductViewer() {
 
   return (
     <div style={{ padding: 20, fontFamily: "sans-serif" }}>
-      <h2>Vali andmed</h2>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <h2>Vali andmed</h2>
+        <button
+          style={{
+            backgroundColor: "#f44336",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            padding: "10px 18px",
+            fontSize: "16px",
+            fontWeight: "bold",
+            cursor: "pointer",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+          }}
+          onClick={async () => {
+            const confirmed = window.confirm(
+              "Kas oled kindel, et soovid kogu andmebaasi resettida? See tegevus on pöördumatu."
+            );
+            if (confirmed) {
+              try {
+                const res = await fetch("http://localhost:3013/reset");
+                const json = await res.json();
+                alert(json.message || "Andmebaas resetitud.");
+                window.location.reload(); // optional: refresh view
+              } catch (err) {
+                console.error("Reset failed:", err);
+                alert("Andmebaasi reset ebaõnnestus.");
+              }
+            }
+          }}
+        >
+          Reset
+        </button>
+      </div>
+
       <select
         value={selectedEndpoint}
         onChange={(e) => setSelectedEndpoint(e.target.value)}
@@ -274,7 +315,7 @@ export default function ProductViewer() {
         ))}
       </select>
 
-      {selectedEndpoint === "/search" && (
+      {selectedEndpoint.startsWith("/search") && (
         <div style={{ marginTop: 10, marginBottom: 20 }}>
           <input
             type="text"
