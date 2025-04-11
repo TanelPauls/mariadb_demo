@@ -14,6 +14,7 @@ import {
   breads,
   addDiscount,
   applyDiscount,
+  allDiscounts,
 } from "../controllers/db.controllers.js";
 
 const router = express.Router();
@@ -31,5 +32,6 @@ router.get("/namePriceVarietyCompany", namePriceVarietyCompany);
 router.get("/breads", breads);
 router.get("/addDiscount", addDiscount);
 router.patch("/applyDiscount", applyDiscount);
+router.get("/allDiscounts", allDiscounts);
 
 export default router;

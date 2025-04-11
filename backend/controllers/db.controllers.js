@@ -187,3 +187,13 @@ export const applyDiscount = async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 };
+
+export const allDiscounts = async (req, res) => {
+  try {
+    const result = await tableOperations.allDiscounts();
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Error sorteerimisel:", error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
