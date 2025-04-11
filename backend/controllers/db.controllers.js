@@ -3,7 +3,6 @@ import CreateTables from "../db/initTables.js";
 import fetchAndInsert from "../db/loadDataURLLiik.js";
 import fetchAndInsertTootja from "../db/loadDataURLTootja.js";
 import fetchAndInsertTooted from "../db/loadDataURLTooted.js";
-import { db } from "../db/connectMariaDB.js";
 
 export const resetDB = async (req, res) => {
   try {
@@ -39,6 +38,56 @@ export const sortDown = async (req, res) => {
     return res.status(200).json(sortedProducts);
   } catch (error) {
     console.error("Error sorteerimisel:", error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const priceKG = async (req, res) => {
+  try {
+    const pricePerKG = await tableOperations.priceKG();
+    return res.status(200).json(pricePerKG);
+  } catch (error) {
+    console.error("Error kilohinnaga:", error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const priceKGSortUp = async (req, res) => {
+  try {
+    const pricePerKGSortUp = await tableOperations.priceKGsortUp();
+    return res.status(200).json(pricePerKGSortUp);
+  } catch (error) {
+    console.error("Error kilohinna sorteerimisel:", error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const priceKGSortDown = async (req, res) => {
+  try {
+    const pricePerKGsortdown = await tableOperations.priceKGsortDown();
+    return res.status(200).json(pricePerKGsortdown);
+  } catch (error) {
+    console.error("Error kilohinna sorteerimisel:", error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const search = async (req, res) => {
+  let { name, price } = req.query;
+
+  name = name ?? "";
+  price = parseFloat(price ?? "0");
+
+  if (isNaN(price)) {
+    return res.status(400).json({ message: "Invalid price value." });
+  }
+
+  price = parseFloat(price);
+  try {
+    const results = await tableOperations.search(name, price);
+    return res.status(200).json(results);
+  } catch (error) {
+    console.error("Error otsingul:", error.message);
     return res.status(500).json({ message: "Internal server error." });
   }
 };

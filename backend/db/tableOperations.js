@@ -59,6 +59,59 @@ class tableOperations {
       throw error;
     }
   }
+
+  static async priceKG() {
+    const query = `
+          SELECT Nimetus, Kaal, Hind, ROUND(Hind / (Kaal / 1000), 2) AS Kilo_hind FROM TOOTED;
+        `;
+    try {
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error("Error tabelis kilohind: ", error.stack);
+      throw error;
+    }
+  }
+
+  static async priceKGsortDown() {
+    const query = `
+          SELECT Nimetus, Kaal, Hind, ROUND(Hind / (Kaal / 1000), 2) AS Kilo_hind FROM TOOTED ORDER BY Kilo_hind DESC;
+        `;
+    try {
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error("Error tabeli kilohind sorteerimisel: ", error.stack);
+      throw error;
+    }
+  }
+
+  static async priceKGsortUp() {
+    const query = `
+          SELECT Nimetus, Kaal, Hind, ROUND(Hind / (Kaal / 1000), 2) AS Kilo_hind FROM TOOTED ORDER BY Kilo_hind ASC;
+        `;
+    try {
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error("Error tabeli kilohind sorteerimisel: ", error.stack);
+      throw error;
+    }
+  }
+
+  static async search(name, price) {
+    const query = `
+      SELECT Nimetus, Kaal, Hind FROM TOOTED WHERE Nimetus LIKE ? AND Hind > ?;
+      `;
+    try {
+      const nameSearch = `%${name}%`;
+      const [rows] = await db.query(query, [nameSearch, price]);
+      return rows;
+    } catch (error) {
+      console.error("Error otsimisel:", error.message);
+      throw error;
+    }
+  }
 }
 
 export default tableOperations;
