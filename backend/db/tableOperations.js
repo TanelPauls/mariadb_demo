@@ -112,6 +112,22 @@ class tableOperations {
       throw error;
     }
   }
+
+  static async updateProduct(id, name, weight, price) {
+    const query = `
+      UPDATE TOOTED 
+      SET Nimetus = ?, Kaal = ?, Hind = ?
+      WHERE id = ?;
+    `;
+
+    try {
+      const [result] = await db.query(query, [name, weight, price, id]);
+      return result;
+    } catch (error) {
+      console.error("Error updating product:", error.message);
+      throw error;
+    }
+  }
 }
 
 export default tableOperations;

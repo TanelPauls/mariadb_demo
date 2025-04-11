@@ -91,3 +91,23 @@ export const search = async (req, res) => {
     return res.status(500).json({ message: "Internal server error." });
   }
 };
+
+export const updateProduct = async (req, res) => {
+  const { id } = req.params;
+  const { Nimetus, Kaal, Hind } = req.body;
+
+  if (!Nimetus || !Kaal || !Hind) {
+    return res.status(400).json({ message: "Mõned väljad puudu." });
+  }
+
+  try {
+    const result = await tableOperations.updateProduct(id, Nimetus, Kaal, Hind);
+    return res.status(200).json({
+      message: "Muudatused tehtud.",
+      affectedRows: result.affectedRows,
+    });
+  } catch (error) {
+    console.error("Error muudatuste tegemisel:", error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};

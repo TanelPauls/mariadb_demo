@@ -25,7 +25,7 @@ class CreateTables {
     const query = `
           CREATE TABLE IF NOT EXISTS TOOTJA (
           Tootja_id INT AUTO_INCREMENT PRIMARY KEY,
-          Tootja VARCHAR(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
+          Tootja VARCHAR(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE
           ) CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
         `;
     try {
@@ -39,7 +39,7 @@ class CreateTables {
     const query = `
           CREATE TABLE IF NOT EXISTS LIIK (
           Liigi_id INT AUTO_INCREMENT PRIMARY KEY,
-          Nimetus VARCHAR(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
+          Nimetus VARCHAR(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE
           ) CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
         `;
     try {
