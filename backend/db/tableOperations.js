@@ -8,7 +8,7 @@ class tableOperations {
     try {
       await db.query(query);
     } catch (error) {
-      console.error("Error droping table TOOTED:", error.stack);
+      console.error("Error tabeli TOOTED kustutamisel:", error.stack);
       throw error;
     }
   }
@@ -19,7 +19,7 @@ class tableOperations {
     try {
       await db.query(query);
     } catch (error) {
-      console.error("Error droping table TOOTJA:", error.stack);
+      console.error("Error tabeli TOOTJA kustutamisel:", error.stack);
       throw error;
     }
   }
@@ -30,7 +30,32 @@ class tableOperations {
     try {
       await db.query(query);
     } catch (error) {
-      console.error("Error droping table LIIK:", error.stack);
+      console.error("Error tabeli LIIK kustutamisel:", error.stack);
+      throw error;
+    }
+  }
+  static async sortUp() {
+    const query = `
+          SELECT Nimetus, Kaal, Hind FROM TOOTED ORDER BY Hind ASC;
+        `;
+    try {
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error("Error tabeli sorteerimisel: ", error.stack);
+      throw error;
+    }
+  }
+
+  static async sortDown() {
+    const query = `
+          SELECT Nimetus, Kaal, Hind FROM TOOTED ORDER BY Hind DESC;
+        `;
+    try {
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error("Error tabeli sorteerimisel: ", error.stack);
       throw error;
     }
   }
