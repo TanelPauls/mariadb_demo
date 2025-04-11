@@ -271,6 +271,68 @@ class tableOperations {
       throw error;
     }
   }
+
+  static async cheapest() {
+    const query = `
+          SELECT * FROM (
+            SELECT T.Nimetus, T.Hind, L.Nimetus AS Liik
+            FROM TOOTED T
+            JOIN LIIK L ON T.Liik = L.Liigi_id
+            WHERE L.Nimetus = 'Sai'
+            ORDER BY T.Hind ASC
+            LIMIT 1
+          ) AS SaiToode
+
+          UNION ALL
+
+          SELECT * FROM (
+            SELECT T.Nimetus, T.Hind, L.Nimetus AS Liik
+            FROM TOOTED T
+            JOIN LIIK L ON T.Liik = L.Liigi_id
+            WHERE L.Nimetus = 'Leib'
+            ORDER BY T.Hind ASC
+            LIMIT 1
+          ) AS LeibToode;
+        `;
+    try {
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error("Error tabeli koostamisel: ", error.stack);
+      throw error;
+    }
+  }
+
+  static async mostexpensive() {
+    const query = `
+          SELECT * FROM (
+            SELECT T.Nimetus, T.Hind, L.Nimetus AS Liik
+            FROM TOOTED T
+            JOIN LIIK L ON T.Liik = L.Liigi_id
+            WHERE L.Nimetus = 'Leib'
+            ORDER BY T.Hind DESC
+            LIMIT 3
+          ) AS TopLeivad
+
+          UNION ALL
+
+          SELECT * FROM (
+            SELECT T.Nimetus, T.Hind, L.Nimetus AS Liik
+            FROM TOOTED T
+            JOIN LIIK L ON T.Liik = L.Liigi_id
+            WHERE L.Nimetus = 'Sai'
+            ORDER BY T.Hind DESC
+            LIMIT 3
+          ) AS TopSaid;
+        `;
+    try {
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error("Error tabeli koostamisel: ", error.stack);
+      throw error;
+    }
+  }
 }
 
 export default tableOperations;

@@ -197,3 +197,23 @@ export const allDiscounts = async (req, res) => {
     return res.status(500).json({ message: "Internal server error." });
   }
 };
+
+export const cheapest = async (req, res) => {
+  try {
+    const result = await tableOperations.cheapest();
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Error sorteerimisel:", error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const mostexpensive = async (req, res) => {
+  try {
+    const result = await tableOperations.mostexpensive();
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Error sorteerimisel:", error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};

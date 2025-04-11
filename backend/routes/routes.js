@@ -15,6 +15,8 @@ import {
   addDiscount,
   applyDiscount,
   allDiscounts,
+  cheapest,
+  mostexpensive,
 } from "../controllers/db.controllers.js";
 
 const router = express.Router();
@@ -33,5 +35,7 @@ router.get("/breads", breads);
 router.get("/addDiscount", addDiscount);
 router.patch("/applyDiscount", applyDiscount);
 router.get("/allDiscounts", allDiscounts);
+router.get("/cheapest", cheapest);
+router.get("/mostexpensive", mostexpensive);
 
 export default router;
