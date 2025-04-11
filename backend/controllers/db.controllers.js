@@ -96,12 +96,18 @@ export const updateProduct = async (req, res) => {
   const { id } = req.params;
   const { Nimetus, Kaal, Hind } = req.body;
 
-  if (!Nimetus || !Kaal || !Hind) {
-    return res.status(400).json({ message: "Mõned väljad puudu." });
+  if (!Nimetus && !Kaal && !Hind) {
+    return res
+      .status(400)
+      .json({ message: "Vähemalt üks väli peab olema esitatud." });
   }
 
   try {
-    const result = await tableOperations.updateProduct(id, Nimetus, Kaal, Hind);
+    const result = await tableOperations.updateProduct(id, {
+      Nimetus,
+      Kaal,
+      Hind,
+    });
     return res.status(200).json({
       message: "Muudatused tehtud.",
       affectedRows: result.affectedRows,

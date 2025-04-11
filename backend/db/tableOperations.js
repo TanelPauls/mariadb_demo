@@ -113,15 +113,31 @@ class tableOperations {
     }
   }
 
-  static async updateProduct(id, name, weight, price) {
+  static async updateProduct(id, fields) {
+    const updates = [];
+    const values = [];
+
+    for (const [key, value] of Object.entries(fields)) {
+      if (value !== undefined) {
+        updates.push(`${key} = ?`);
+        values.push(value);
+      }
+    }
+
+    if (updates.length === 0) {
+      throw new Error("No valid fields to update.");
+    }
+
     const query = `
-      UPDATE TOOTED 
-      SET Nimetus = ?, Kaal = ?, Hind = ?
-      WHERE id = ?;
-    `;
+  UPDATE TOOTED
+  SET ${updates.join(", ")}
+  WHERE id = ?;
+`;
+
+    values.push(id);
 
     try {
-      const [result] = await db.query(query, [name, weight, price, id]);
+      const [result] = await db.query(query, values);
       return result;
     } catch (error) {
       console.error("Error updating product:", error.message);
