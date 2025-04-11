@@ -166,11 +166,11 @@ export const addDiscount = async (req, res) => {
       await tableOperations.addDiscount();
       return res
         .status(200)
-        .json({ message: "Allahindluse väli edukalt lisatud." });
+        .json([{ Teade: "Allahindluse väli edukalt lisatud." }]);
     } else {
       return res
         .status(200)
-        .json({ message: "Allahindluse väli on juba olemas." });
+        .json([{ Teade: "Allahindluse väli on juba olemas." }]);
     }
   } catch (error) {
     console.error("Error sorteerimisel:", error.message);
@@ -222,6 +222,16 @@ export const cheapest = async (req, res) => {
 export const mostexpensive = async (req, res) => {
   try {
     const result = await tableOperations.mostexpensive();
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Error sorteerimisel:", error.message);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export const loadEdit = async (req, res) => {
+  try {
+    const result = await tableOperations.loadEdit();
     return res.status(200).json(result);
   } catch (error) {
     console.error("Error sorteerimisel:", error.message);

@@ -128,6 +128,7 @@ class tableOperations {
   }
 
   static async updateProduct(id, fields) {
+    console.log("something comes in!");
     const updates = [];
     const values = [];
 
@@ -270,8 +271,8 @@ class tableOperations {
           SELECT 
             Nimetus AS Toode,
             Hind AS Vana_Hind,
-            ROUND(Hind * (1 - Allahindlus / 100), 2) AS Uus_Hind,
-            Allahindlus
+            Allahindlus,
+            ROUND(Hind * (1 - Allahindlus / 100), 2) AS Uus_Hind
           FROM 
             TOOTED
           WHERE 
@@ -344,6 +345,19 @@ class tableOperations {
       return rows;
     } catch (error) {
       console.error("Error tabeli koostamisel: ", error.stack);
+      throw error;
+    }
+  }
+
+  static async loadEdit() {
+    const query = `
+          SELECT id, Nimetus, Kaal, Hind FROM TOOTED;
+        `;
+    try {
+      const [rows] = await db.query(query);
+      return rows;
+    } catch (error) {
+      console.error("Error tabeli laadimisel: ", error.stack);
       throw error;
     }
   }

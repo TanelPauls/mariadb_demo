@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaArrowUp, FaArrowDown } from "react-icons/fa";
+import { FaArrowUp, FaArrowDown, FaEdit } from "react-icons/fa";
 
 const endpoints = [
   {
@@ -17,9 +17,51 @@ const endpoints = [
       "3. Kuvada kõik tooted, mille nimetus sisaldab sõna leib ja mis maksab üle 2 euro. Lisaks toote nimetusele väljasta ka kaal ja hind.",
     value: "/search",
   },
-
-  { label: "Top 3 leiba & saia", value: "/mostexpensive" },
-  { label: "Kõige odavam leib & sai", value: "/cheapest" },
+  {
+    label:
+      "4. Veebirakenduses on võimalik muuta toodete andmeid. Kirjuta käsk, mis muudab toote “Teratasku” hinda, uus hind 1.35€.",
+    value: "/edit/:id",
+  },
+  {
+    label: "5. Kuva toote nimetus, hind ja toote liigi nimetus.",
+    value: "/namePriceVariety",
+  },
+  {
+    label:
+      "6. Kuva toote nimetus, hind ja toote liigi nimetus ning tootja nimi.",
+    value: "/namePriceVarietyCompany",
+  },
+  {
+    label: "7. Kuva mitu saia ja mitu leiba on toodete seas?",
+    value: "/breads",
+  },
+  {
+    label: "8. Kuva toote nimetused, mis sisaldavad sõna “seemne”.",
+    value: "/search",
+  },
+  {
+    label:
+      "9. Andmebaasi haldurile anti ülesanne lisada toodete tabelisse uus väli Allahindlus. Allahindlusi hoitakse täisarvudena. Millise käsuga saab selle muudatuse teha?",
+    value: "/addDiscount",
+  },
+  {
+    label:
+      "10. Kõikidele toodete, mis on viilutatud lisada allahindluse protsent 5 ja kõikidele röstitavatele toodetele allahindluse protsent 10.",
+    value: "/applyDiscount",
+  },
+  {
+    label:
+      "11. Kuva allahinnatud toodete nimed, vana hind ja uus hind etteantud allahindlusega.",
+    value: "/allDiscounts",
+  },
+  {
+    label: "12. Kuva kõige odavam sai ja leib koos nimetuse ning hinnaga.",
+    value: "/cheapest",
+  },
+  {
+    label: "13. Kuva 3 kõige kallimat leiba ja 3 kõige kallimat saia.",
+    value: "/mostexpensive",
+  },
 ];
 
 export default function ProductViewer() {
@@ -27,15 +69,22 @@ export default function ProductViewer() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const [searchName, setSearchName] = useState("");
   const [searchPrice, setSearchPrice] = useState("");
+  const [editField, setEditField] = useState(null);
+  const [editedRow, setEditedRow] = useState({});
 
   useEffect(() => {
     if (selectedEndpoint === "/search") {
       setSearchName("");
       setSearchPrice("");
       fetchData(`/search?name=&price=0`);
+    } else if (selectedEndpoint.startsWith("/edit")) {
+      fetchData("/edit");
+    } else if (selectedEndpoint === "/applyDiscount") {
+      fetchData(`/allDiscounts`);
+    } else {
+      fetchData(selectedEndpoint.replace("/:id", ""));
     }
   }, [selectedEndpoint]);
 
@@ -54,9 +103,31 @@ export default function ProductViewer() {
     }
   };
 
+  const sendUpdate = async (id, key, value) => {
+    console.log("Sending update:", { id, key, value });
+
+    if (!id || value === undefined) {
+      console.warn("Missing ID or value");
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:3013/edit/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [key]: value }),
+      });
+      const json = await res.json();
+      console.log("Server response:", json);
+      setEditField(null);
+      fetchData("/edit");
+    } catch (err) {
+      console.error("Update failed:", err);
+    }
+  };
+
   const handleSortDirection = (direction) => {
     if (!selectedEndpoint) return;
-
     const base = selectedEndpoint.replace("/", "");
     let newEndpoint = "";
 
@@ -68,7 +139,7 @@ export default function ProductViewer() {
       newEndpoint =
         direction === "up" ? "/pricePerKGsortUp" : "/pricePerKGsortDown";
     } else {
-      newEndpoint = "/unsorted"; // fallback
+      newEndpoint = "/unsorted";
     }
 
     setSelectedEndpoint(newEndpoint);
@@ -87,7 +158,7 @@ export default function ProductViewer() {
   const renderTable = () => {
     if (data.length === 0) return <p>Andmeid ei leitud.</p>;
 
-    const headers = Object.keys(data[0]);
+    const headers = Object.keys(data[0] || {}).filter((key) => key !== "id");
 
     return (
       <table
@@ -103,19 +174,11 @@ export default function ProductViewer() {
                 ] === h && (
                   <>
                     <FaArrowUp
-                      style={{
-                        marginLeft: 5,
-                        cursor: "pointer",
-                        color: "red",
-                      }}
+                      style={{ marginLeft: 5, cursor: "pointer", color: "red" }}
                       onClick={() => handleSortDirection("up")}
                     />
                     <FaArrowDown
-                      style={{
-                        marginLeft: 5,
-                        cursor: "pointer",
-                        color: "red",
-                      }}
+                      style={{ marginLeft: 5, cursor: "pointer", color: "red" }}
                       onClick={() => handleSortDirection("down")}
                     />
                   </>
@@ -127,14 +190,67 @@ export default function ProductViewer() {
         <tbody>
           {data.map((row, i) => (
             <tr key={i}>
-              {headers.map((key) => (
-                <td
-                  key={key}
-                  style={{ border: "1px solid #ccc", padding: "8px" }}
-                >
-                  {row[key]}
-                </td>
-              ))}
+              {headers.map((key) => {
+                const isEditing =
+                  editField?.row === i && editField?.field === key;
+                return (
+                  <td
+                    key={key}
+                    style={{ border: "1px solid #ccc", padding: "8px" }}
+                  >
+                    {selectedEndpoint.startsWith("/edit") ? (
+                      isEditing ? (
+                        <>
+                          <input
+                            type={
+                              typeof row[key] === "number" ? "number" : "text"
+                            }
+                            value={editedRow[key]}
+                            onChange={(e) =>
+                              setEditedRow({
+                                ...editedRow,
+                                [key]: e.target.value,
+                              })
+                            }
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                sendUpdate(row.id, key, editedRow[key]);
+                              }
+                            }}
+                            style={{ marginRight: 4 }}
+                            autoFocus
+                          />
+                          <button
+                            onClick={() =>
+                              sendUpdate(row.id, key, editedRow[key])
+                            }
+                            style={{ padding: "2px 6px" }}
+                          >
+                            ✅
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          {row[key]}{" "}
+                          <FaEdit
+                            style={{
+                              marginLeft: 5,
+                              cursor: "pointer",
+                              color: "blue",
+                            }}
+                            onClick={() => {
+                              setEditField({ row: i, field: key });
+                              setEditedRow(row);
+                            }}
+                          />
+                        </>
+                      )
+                    ) : (
+                      row[key]
+                    )}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
@@ -147,13 +263,7 @@ export default function ProductViewer() {
       <h2>Vali andmed</h2>
       <select
         value={selectedEndpoint}
-        onChange={(e) => {
-          const value = e.target.value;
-          setSelectedEndpoint(value);
-          if (value && value !== "/search") {
-            fetchData(value);
-          }
-        }}
+        onChange={(e) => setSelectedEndpoint(e.target.value)}
         style={{ padding: "8px", marginBottom: "10px", minWidth: "250px" }}
       >
         <option value="">-- Vali päring --</option>
@@ -163,6 +273,7 @@ export default function ProductViewer() {
           </option>
         ))}
       </select>
+
       {selectedEndpoint === "/search" && (
         <div style={{ marginTop: 10, marginBottom: 20 }}>
           <input
@@ -189,10 +300,52 @@ export default function ProductViewer() {
           </button>
         </div>
       )}
+      {selectedEndpoint === "/applyDiscount" && (
+        <div style={{ marginTop: 10, marginBottom: 20 }}>
+          <input
+            type="text"
+            placeholder="Tootenimetus sisaldab..."
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            style={{ marginRight: 10, padding: "6px" }}
+          />
+          <input
+            type="number"
+            placeholder="Allahindlus (%)"
+            value={searchPrice}
+            onChange={(e) => setSearchPrice(e.target.value)}
+            style={{ marginRight: 10, padding: "6px" }}
+          />
+          <button
+            onClick={async () => {
+              try {
+                const res = await fetch("http://localhost:3013/applyDiscount", {
+                  method: "PATCH",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    name: searchName,
+                    value: parseInt(searchPrice, 10),
+                  }),
+                });
+                const json = await res.json();
+                alert(json.message); // or style it differently
+                fetchData("/allDiscounts"); // reload edited view or discount list
+              } catch (err) {
+                console.error("Apply discount failed:", err);
+                alert("Midagi läks valesti allahindluse lisamisel.");
+              }
+            }}
+            style={{ padding: "6px 12px" }}
+          >
+            Lisa allahindlus
+          </button>
+        </div>
+      )}
 
       {loading && <p>Laen andmeid...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
-
       {renderTable()}
     </div>
   );

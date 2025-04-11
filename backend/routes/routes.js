@@ -9,6 +9,7 @@ import {
   priceKGSortUp,
   priceKGSortDown,
   search,
+  loadEdit,
   updateProduct,
   namePriceVariety,
   namePriceVarietyCompany,
@@ -30,6 +31,7 @@ router.get("/pricePerKG", priceKG);
 router.get("/pricePerKGsortUp", priceKGSortUp);
 router.get("/pricePerKGsortDown", priceKGSortDown);
 router.get("/search", search);
+router.get("/edit", loadEdit);
 router.patch("/edit/:id", updateProduct);
 router.get("/namePriceVariety", namePriceVariety);
 router.get("/namePriceVarietyCompany", namePriceVarietyCompany);
