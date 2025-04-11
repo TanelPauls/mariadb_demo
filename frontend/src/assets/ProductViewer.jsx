@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 
 const endpoints = [
@@ -23,11 +23,21 @@ const endpoints = [
 ];
 
 export default function ProductViewer() {
-  const [selectedEndpoint, setSelectedEndpoint] = useState("");
+  const [selectedEndpoint, setSelectedEndpoint] = useState("/search");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
+  const [searchName, setSearchName] = useState("");
+  const [searchPrice, setSearchPrice] = useState("");
+
+  useEffect(() => {
+    if (selectedEndpoint === "/search") {
+      setSearchName("");
+      setSearchPrice("");
+      fetchData(`/search?name=&price=0`);
+    }
+  }, [selectedEndpoint]);
 
   const fetchData = async (endpoint) => {
     setLoading(true);
@@ -140,7 +150,9 @@ export default function ProductViewer() {
         onChange={(e) => {
           const value = e.target.value;
           setSelectedEndpoint(value);
-          if (value) fetchData(value);
+          if (value && value !== "/search") {
+            fetchData(value);
+          }
         }}
         style={{ padding: "8px", marginBottom: "10px", minWidth: "250px" }}
       >
@@ -151,6 +163,32 @@ export default function ProductViewer() {
           </option>
         ))}
       </select>
+      {selectedEndpoint === "/search" && (
+        <div style={{ marginTop: 10, marginBottom: 20 }}>
+          <input
+            type="text"
+            placeholder="Nimetus sisaldab..."
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            style={{ marginRight: 10, padding: "6px" }}
+          />
+          <input
+            type="number"
+            placeholder="Hind üle..."
+            value={searchPrice}
+            onChange={(e) => setSearchPrice(e.target.value)}
+            style={{ marginRight: 10, padding: "6px" }}
+          />
+          <button
+            onClick={() =>
+              fetchData(`/search?name=${searchName}&price=${searchPrice || 0}`)
+            }
+            style={{ padding: "6px 12px" }}
+          >
+            Otsi
+          </button>
+        </div>
+      )}
 
       {loading && <p>Laen andmeid...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
